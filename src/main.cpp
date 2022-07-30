@@ -10,6 +10,7 @@
  */
 
 // Include header files
+#include <string>
 #include <ctime>
 #include <thread>
 #include <array>
@@ -61,7 +62,29 @@ int main(int argv, char *argc[])
 								  // https://docs.microsoft.com/en-us/windows/desktop/fileio/naming-a-file
 
 	// Choose which cell should be used for the simulations
-	const int cellType = slide::cellType::KokamNMC;
+	std::cout << "here" << "\n";
+	int cell = slide::cellType::KokamNMC;
+	if (argv > 1) {
+		if (strcmp(argc[1],"1") == 0) {
+			cell = slide::cellType::LGChemNMC;
+		}
+		else if (strcmp(argc[1], "2") == 0) {
+			cell = slide::cellType::UserCell;
+		}
+	}
+	const int cellType = cell;
+	// printing the cell type
+	switch (cell) {
+	case 1:
+		std::cout << "using LGChem cell \n";
+		break;
+	case 2:
+		std::cout << "using user specific cell \n";
+		break;
+	default:
+		std::cout << "using KokamNMC cell \n";
+	}
+
 	// which cell to use for the simulation.
 	// 0 	high power Kokam NMC cell (18650)
 	// 1 	high energy LG Chem NMC cell (18650)

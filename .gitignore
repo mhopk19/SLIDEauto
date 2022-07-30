@@ -13,3 +13,4 @@ out/*
 Release/*
 Debug/*
 *.ilk
+src/.vs/
