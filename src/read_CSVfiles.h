@@ -121,3 +121,54 @@ void loadCSV_2col(const Tpath &name, Tx &x, Ty &y, int n = 0)
 			j++;
 	}
 }
+
+/*
+* Added function to get the number of lines in a csv file so that this need not be a parameter
+*/
+template <typename Tpath>
+int getCSVLines_2col(const Tpath& name)
+{
+	/*
+	 * Reads data from a CSV file with 2 columns
+	 *
+	 * IN
+	 * name 	the name of the file
+	 * n 		the number of rows to read (if n==0, read all), it is used to read a portion of a *.csv file.
+	 *
+	 * OUT
+	 * x 		array in which the data from the first column will be put
+	 * y 		array in which the data from the second column will be put
+	 *
+	 * THROWS
+	 * 2 		could not open the specified file
+	 */
+
+	std::ifstream in(name, std::ios_base::in);
+
+	if (!in.good()) // check if we could open the file
+	{
+		std::cerr << "Error in ReadCSVfiles::loadCSV_2col. File " << name << " could not be opened.\n";
+		throw 2;
+	}
+
+	char c = '.';
+
+	while (!std::isalnum(in.peek())) // Ignore byte order mark (BOM) at the beginning
+		in >> c;
+
+	bool done = 0;
+	int x = 0;
+	int y = 0;
+	int j = 0;
+
+	//std::fstream file(name, fstream::in);
+	std::string line = "";
+
+	while (getline(in, line))
+	{
+		j++;
+	}
+
+	std::cout << "number of lines: " << j << std::endl;
+	return j++;
+}

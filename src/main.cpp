@@ -167,7 +167,12 @@ int main(int argv, char *argc[])
 
 	// *********************************************** CYCLING FUNCTION CALLS ********************************************************
 	CCCV(M, pref, deg, cellType, settings::verbose);		  // a cell does a few CCCV cycles
-	FollowCurrent(M, pref, deg, cellType, settings::verbose); // a cell follows the current profile specified in a csv file
+	//FollowCurrent(M, pref, deg, cellType, settings::verbose); // a cell follows the current profile specified in a csv file
+	std::string profile_file = "Current Profile drive cycle UDDS.csv";
+	if (argv > 2) {
+		profile_file = argc[2];
+	}
+	FollowCurrentSpecific(M, pref, deg, cellType, settings::verbose, profile_file);
 
 	// *********************************************** DEGRADATION FUNCTION CALLS ********************************************************
 	// CalendarAgeing(M, pref, deg, cellType, settings::verbose); // simulates a bunch of calendar degradation experiments

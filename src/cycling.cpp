@@ -10,6 +10,7 @@
  */
 
 // Include header files
+#include "read_CSVfiles.h""
 #include "cycling.h"
 #include "degradation.h"
 #include "cycler.hpp"
@@ -289,6 +290,69 @@ void FollowCurrent(const struct slide::Model &M, std::string pref, const struct 
 	/*
 	 * the written csv file has one row per data entry.
 	 * Each column represents one measured property.
+	 * The columns are as follows:
+	 * 		1			2				3				4	5	6		7		8				9			10			11			12				13				14				15
+	 * 		total_time 	Ah_throughput 	Wh_throughput 	I 	V 	OCVp 	OCVn 	Temperature 	charge_time charge_Ah 	charge_Wh 	discharge_time 	discharge_Ah 	discharge_Wh 	rest_time
+	 */
+}
+
+
+void FollowCurrentSpecific(const struct slide::Model& M, std::string pref, const struct DEG_ID& degid, int cellType,
+	int verbose, std::string profile_file)
+{
+	//std::string profile = "Current Profile drive cycle UDDS.csv"; // name of the csv file with the current profile
+	int length = 1370;											  // length of the profile (number of rows in the csv file) to read.
+	length = getCSVLines_2col(PathVar::data + profile_file);
+	//length = 1370;
+
+	int limit = 1; // what to do if the voltage limits are reached while following the profile:
+				   // 0 immediately go to the next current step of the profile (i.e. reduce the time of the step)
+				   // 1 keep the voltage constant for the rest of this step of the profile (i.e. reduce the current for the rest of the step)
+
+	auto createCell = [&]
+	{
+		if (cellType == 0)
+			return (Cell)Cell_KokamNMC(M, degid, verbose); // a high power NMC cell made by Kokam
+		else if (cellType == 1)
+			return (Cell)Cell_LGChemNMC(M, degid, verbose); // a high energy NMC cell made by LG Chem
+		else
+			return (Cell)slide::Cell_user(M, degid, verbose); // a user-defined cell
+	};
+
+	Cell c1 = createCell();
+
+	// Settings of the cycles
+	double T = PhyConst::Kelvin + 25; // temperature at which the cycling should be done [K]
+	double Vmax = c1.getVmax();		  // voltage to which the cell should be charged, now use the maximum cell voltage [V]
+	double Vmin = c1.getVmin();		  // voltage to which to discharge the cell, now use the minimum cell voltage [V]
+	bool blockDegradation = true;	  // don't account for degradation while doing the cycles
+	double ahi, whi, timei;			  // discharge charge, energy and time spend during the current profile
+
+	// Set the temperature and voltage limits of the cell
+	c1.setTenv(T); // set the environmental temperature
+	c1.setT(T);	   // set the cell temperature
+
+	// settings of the cycler
+	std::string ID = "followCurrent"; // identification string for the data of this cell (will also be used to name the folder so must have the same restrictions as the prefix, i.e. no spaces, no special characters, etc.)
+	int timeCycleData = 2;			  // time interval at which cycling data has to be recorded [s]
+									  // 	0 means no data is recorded
+									  //  if not 0, data is recorded approximately every so many seconds
+									  // 	but it is ensured that there is at least one data point per current step
+									  // 		so if a given current has to be maintained for 1 second, and 'timeCycleData' == 10
+									  // 		then there will still be a data point for that 1 second
+
+	// append the ageing identifiers to the prefix
+	pref += "_" + degid.print() + "_";
+
+	// Make a Cycler
+	Cycler cycler(c1, pref + ID, verbose, timeCycleData);
+
+	std::cout << "profile file: " << profile_file << std::endl;
+	cycler.followI(length, profile_file, blockDegradation, limit, Vmax, Vmin, &ahi, &whi, &timei);
+
+	cycler.writeCyclingData();
+
+	/*
 	 * The columns are as follows:
 	 * 		1			2				3				4	5	6		7		8				9			10			11			12				13				14				15
 	 * 		total_time 	Ah_throughput 	Wh_throughput 	I 	V 	OCVp 	OCVn 	Temperature 	charge_time charge_Ah 	charge_Wh 	discharge_time 	discharge_Ah 	discharge_Wh 	rest_time
