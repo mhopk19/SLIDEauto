@@ -217,4 +217,77 @@ namespace slide
 		x[2 * settings::nch + 12] = ri;
 	}
 
+
+	/*
+	*nin 		length of the arrays with the(transformed) concentration
+		* zpi 		transformed concentration at the positive inner Chebyshev nodes of the positive particle
+		* zni		transformed concentration at the positive inner Chebyshev nodes of the negative particle
+		* Ti 		cell temperature[K]
+		* deltai 	thickness of the SEI layer[m]
+		* LLIi 	lost lithium inventory[As]
+		* thickpi 	thickness of the cathode[m]
+		* thickni 	thickness of the anode[m]
+		* epi 		volume fraction of active material in the cathode[-]
+		* eni 		volume fraction of active material in the anode[-]
+		* api 		effective surface area of the porous cathode[m2 m - 3]
+		* ani 		effective surface area of the porous anode[m2 m - 3]
+		* CSi 		surface area of the cracks at the surface of the negative particle[m2]
+		* Dpi 		diffusion constant of the cathode at reference temperature[m s - 1]
+		* Dni 		diffusion constant of the anode at reference temperature[m s - 1]
+		* ri 		specific resistance of both electrodes combined[Ohm m2]
+		* deltalii thickness of the plated lithium layer[m]
+	*/
+	void State::printStates()
+	{
+		const int stateSize = sizeof(x) / sizeof(x[0]);
+		std::string state;
+		for (int i = 0; i < stateSize; i++) {
+			switch (i) {
+				case (2 * settings::nch + 0):
+					state = "temperature";
+					break;
+				case (2 * settings::nch + 1):
+					state = "SEI thickness";
+					break;
+				case (2 * settings::nch + 2):
+					state = "lost lithium";
+					break;
+				case (2 * settings::nch + 3):
+					state = "thickness of cathode [m] ";
+					break;
+				case (2 * settings::nch + 4):
+					state = "thickness of anode [m] ";
+					break;
+				case (2 * settings::nch + 5):
+					state = "volume fraction of active material in cathode ";
+					break;
+				case (2 * settings::nch + 6):
+					state = "volume fraction of active material in anode ";
+					break;
+				case (2 * settings::nch + 7):
+					state = "effective surface area of porous cathode";
+					break;
+				case (2 * settings::nch + 8):
+					state = "effective surface area of porous anode ";
+					break;
+				case (2 * settings::nch + 9):
+					state = "surace area of the cracks at the surface of the negative particle";
+					break;
+				case (2 * settings::nch + 10):
+					state = "diffusion constant of the cathode at reference of temperature";
+					break;
+				case (2 * settings::nch + 11):
+					state = "diffusion constant of the anode at reference of temperature";
+					break;
+				case (2 * settings::nch + 12):
+					state = "specific resistance of the electrode combined";
+					break;
+				case (2 * settings::nch + 13):
+					state = "thickness of the plated lithium layer";
+					break;
+			}
+			std::cout << state << x[i] << std::endl;
+		}
+	}
+
 } // namespace slide

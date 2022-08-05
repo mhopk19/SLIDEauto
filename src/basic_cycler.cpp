@@ -65,6 +65,8 @@ BasicCycler::BasicCycler(Cell &ci, std::string IDi, int verbosei, int CyclingDat
 	AhDisout.reserve(maxLength);
 	WhDisout.reserve(maxLength);
 	timeResout.reserve(maxLength);
+	// added vector for the values of the states
+	curStateout.reserve(maxLength);
 
 	// Some vector reservation for getOCV;
 	OCVni_vec.reserve(100e3);
@@ -197,12 +199,20 @@ void BasicCycler::writeCyclingData(const std::string &name, bool clear)
 			for (size_t i = 0; i < Tout.size(); i++)																   // Tout.size()
 			{																										   // loop for each row (one row is one data point)
 				output << (timeChaout[i] + timeDisout[i] + timeResout[i]) << ","									   // total time [sec]
-					   << (AhChaout[i] + AhDisout[i]) << ","														   // total charge throughput [Ah]
-					   << (WhChaout[i] + WhDisout[i]) << ","														   // total energy throughput [Wh]
-					   << Iout[i] << "," << Vout[i] << "," << OCVpout[i] << "," << OCVnout[i] << "," << Tout[i] << "," // I V OCV_pos OCV_neg T
-					   << timeChaout[i] << "," << AhChaout[i] << "," << WhChaout[i] << ","							   // time on charge, charged charge, charged energy
-					   << timeDisout[i] << "," << AhDisout[i] << "," << WhDisout[i] << ","							   // time on discharge, discharged charge, discharged energy
-					   << timeResout[i] << '\n';																	   // time on rest
+					<< (AhChaout[i] + AhDisout[i]) << ","														   // total charge throughput [Ah]
+					<< (WhChaout[i] + WhDisout[i]) << ","														   // total energy throughput [Wh]
+					<< Iout[i] << "," << Vout[i] << "," << OCVpout[i] << "," << OCVnout[i] << "," << Tout[i] << "," // I V OCV_pos OCV_neg T
+					<< timeChaout[i] << "," << AhChaout[i] << "," << WhChaout[i] << ","							   // time on charge, charged charge, charged energy
+					<< timeDisout[i] << "," << AhDisout[i] << "," << WhDisout[i] << ","							   // time on discharge, discharged charge, discharged energy
+					<< timeResout[i];																	   // time on rest
+				// adding battery state information
+				for (int j = 0; j < settings::ns; j++)
+				{
+					//std::cout << curStateout[i][j] << std::endl;
+					output << curStateout[i][j];
+				}
+				// ending line
+				output << "\n";
 			}
 			output.close(); // close the file
 		}
@@ -2265,6 +2275,10 @@ int BasicCycler::followI(int nI, const std::vector<double> &I, const std::vector
 	bool vminlim{false}, vmaxlim{false};					 // boolean to indicate if the minimum/maximum voltage limit was hit
 	bool verr = false;										 // boolean to indicate if an unknown error occurred
 
+	
+	std::cout << "printing the inital battery states" << std::endl;
+	c.getStates(s, &Iprev);
+	s.printStates();
 	// ****************************************************** 2 loop through the profile ***********************************************************************
 
 	for (size_t i = 0; i < I.size(); i++)
@@ -2292,8 +2306,12 @@ int BasicCycler::followI(int nI, const std::vector<double> &I, const std::vector
 		// such that it is possible that in time step t, all is fine (e.g. v = 3.9), and in time step t+1, the li-concentration is larger than the maximum concentration (and the cell voltage would be 8V)
 
 		// store initial states such they can be restored if needed
+		//s.printStates();
 		c.getStates(s, &Iprev);
-
+		s.printStates();
+		for (int j = 0; j < settings::ns; j++) {
+			curStateout[i][j] = s.x[j];
+		}
 		// Follow this step of the profile
 		try
 		{

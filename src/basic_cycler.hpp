@@ -21,8 +21,9 @@
 #include <array>
 #include <filesystem>
 #include <string>
-
+#include "state.hpp"
 #include "cell.hpp"
+#include "constants.hpp"
 
 namespace fs = std::filesystem;
 
@@ -86,6 +87,7 @@ protected:
 	double AhDis;					// cumulative discharged charge throughput since the start of this data collection [A]
 	double WhCha;					// cumulative charged energy throughput since the start of this data collection [Wh]
 	double WhDis;					// cumulative discharged energy throughput since the start of this data collection [Wh]
+	slide::states_type curState;     // current battery state variable 
 	std::vector<double> timeChaout; // cumulative time spent on charging since the start at every step [s]
 	std::vector<double> AhChaout;	// cumulative charged throughput since the start at every step [A]
 	std::vector<double> WhChaout;	// cumulative charged energy throughput since the start at every step [Wh]
@@ -93,6 +95,7 @@ protected:
 	std::vector<double> AhDisout;	// cumulative discharged charge throughput since the start at every step [A]
 	std::vector<double> WhDisout;	// cumulative discharged energy throughput since the start at every step [Wh]
 	std::vector<double> timeResout; // cumulative time spent on rest since the start at every step [s]
+	std::vector<slide::states_type> curStateout; // current battery state variable 
 
 	FileStatus fileStatus;
 

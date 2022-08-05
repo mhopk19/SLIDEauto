@@ -158,6 +158,7 @@ int main(int argv, char *argc[])
 	// and comment all the other lines (commenting means putting // in front of the line)
 
 	auto numThreads = std::thread::hardware_concurrency(); // asd
+	std::cout << "number of battery states" << settings::ns << '\n';
 	std::cout << "Available number of threads : " << numThreads << '\n';
 	std::cout << "Used threads : " << (settings::isParallel ? std::min(settings::numMaxParallelWorkers, numThreads) : 1) << '\n';
 

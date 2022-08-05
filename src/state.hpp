@@ -77,7 +77,9 @@ namespace slide
 		void overwriteGeometricStates(double thickpi, double thickni, double epi, double eni, double api, double ani); // overwrite the states related to the geometry of a cell
 		void overwriteCharacterisationStates(double Dpi, double Dni, double ri);									   // overwrite the states related to the characterisation of a cell
 
-	private:
+		// debug functions
+		void printStates();
+
 		// battery states
 		// zp[nch] zn[nch] T delta LLI thickp thickn ep en ap an CS Dp Dn R delta_liPlating
 		slide::states_type x{}; // Array to hold all states.
